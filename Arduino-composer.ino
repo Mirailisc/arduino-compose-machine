@@ -1,17 +1,17 @@
 #include <FirebaseArduino.h>
 #include <ESP8266WiFi.h>
 
-int LEDD0 = D0; // ขา D0
-int LEDD1 = D1; // ขา D1
-int LEDD2 = D2; // ขา D2
+int LEDD0 = D0; // LED 1
+int LEDD1 = D1; // LED 2
+int LEDD2 = D2; // LED 3
 
 // WIFI
-#define WIFI_SSID "ssid" 
-#define WIFI_PASSWORD "password"
+#define WIFI_SSID "Poolnoi Family_2.4G" 
+#define WIFI_PASSWORD "0813790188"
 
 // Firebase
-#define FIREBASE_HOST "host"
-#define FIREBASE_AUTH "auth"
+#define FIREBASE_HOST "arduino-project-5c3ff-default-rtdb.asia-southeast1.firebasedatabase.app"
+#define FIREBASE_AUTH "qxJUhhCi6iCZGEFqoyumUYGBbqLtConrKOmeecqG"
                                                        
 void setup() {
   Serial.begin(9600);
@@ -34,34 +34,48 @@ void setup() {
   Serial.print("IP Address is : ");
   Serial.println(WiFi.localIP());
                                                        
-  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH);                                         
+  Firebase.begin(FIREBASE_HOST, FIREBASE_AUTH); // Connect Arduino to Google Firebase
+  Firebase.setString("status", "Stand by"); // Set status to Stand by
+  Firebase.setBool("isSkip", false); // Set isSkip to false                                         
 }
 
 void loop() {
-  loadStatus();
-}
+  String status = Firebase.getString("status"); // Get status data from Firebase
+  bool isSkip = Firebase.getBool("isSkip"); // Get skip data from Firebase
 
-void loadStatus() {
-  String status = Firebase.getString("status");  
-  if (status == "Standby") {
+  Serial.println(isSkip);
+    
+  if (status == "Stand by") {
     Serial.println("Machine is ready!");                       
     digitalWrite(LEDD0, HIGH);
     digitalWrite(LEDD1, LOW); 
     digitalWrite(LEDD2, LOW);                                                     
-  }
-  if (status == "Working") {
-    Serial.println("Machine is working!");
-    digitalWrite(LEDD0, LOW);
-    digitalWrite(LEDD1, HIGH); 
-    digitalWrite(LEDD2, LOW);
-    //Motor Working...
-    delay(10000); 
-    Firebase.setString("status", "Waiting");                                                   
-  }
-  if(status == "Waiting") {
+  } else if (status == "Working") {
+    if (isSkip == false) {
+      Serial.println("Machine is working!");
+      digitalWrite(LEDD0, LOW);
+      digitalWrite(LEDD1, HIGH); 
+      digitalWrite(LEDD2, LOW);
+    
+      //Motor Working Clockwork
+      // delay(1800000); //Working for 30 mins
+      
+      //Motor Working Clockwise
+      // delay(1800000); //Working for 30 mins
+      delay(10000);
+      Firebase.setString("status", "Waiting"); // Set status to Waiting after finish Motor 
+    } else if (isSkip == true) {
+      Serial.println("Skipped Motor");
+      delay(2000);
+      Firebase.setString("status", "Waiting"); // Set status to Waiting without using a Motor
+    }
+    
+  } else if(status == "Waiting") {
     Serial.println("Machine is waiting for water!"); 
     digitalWrite(LEDD0, LOW);
     digitalWrite(LEDD1, LOW); 
     digitalWrite(LEDD2, HIGH);   
+  } else {
+    Firebase.setString("status", "Stand by");
   }
 }
