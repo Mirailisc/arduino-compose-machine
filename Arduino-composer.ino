@@ -57,7 +57,7 @@ void setup() {
 void loop() {
   String status = Firebase.getString("status"); // Get status data from Firebase
   bool isSkip = Firebase.getBool("isSkip"); // Get skip data from Firebase
-  int Times = 0;
+  // int Times = 0;
 
   if (status == "Ready") {
     Serial.println("Machine is ready!");
