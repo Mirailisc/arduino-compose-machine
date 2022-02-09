@@ -7,8 +7,8 @@
 #define LED3 21
 
 // WIFI
-#define WIFI_SSID "Poolnoi Family_2.4G"
-#define WIFI_PASSWORD "0813790188"
+#define WIFI_SSID "MiraWifi"
+#define WIFI_PASSWORD "Miracle_48"
 
 // Firebase
 #define FIREBASE_HOST "arduino-project-5c3ff-default-rtdb.asia-southeast1.firebasedatabase.app"
@@ -101,6 +101,6 @@ void loop() {
     digitalWrite(LED2, LOW);
     digitalWrite(LED3, HIGH);
   } else {
-    Firebase.setString("status", "Ready"); // Set status back to Ready when status is not in condition
+    ESP.restart();
   }
 }
